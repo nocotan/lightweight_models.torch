@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from models.mobilenet_v2.networks import MobileNet_v2
 from datasets import get_loaders
 
 
@@ -67,7 +66,14 @@ def main():
 
     print("build model: {}".format(args.model))
     if args.model == "mobilenet_v2":
+        from models import MobileNet_v2
         model = MobileNet_v2(n_classes=n_classes)
+    elif args.model == "shufflenet":
+        from models import ShuffleNet
+        model = ShuffleNet(n_classes=n_classes,
+                           out_channels=[120, 240, 480],
+                           n_blocks=[2, 4, 2],
+                           groups=3)
     else:
         raise NotImplementedError
 
