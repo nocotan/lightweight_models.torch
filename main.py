@@ -29,7 +29,7 @@ def train(epoch, model, optimizer, criterion, train_loader, device):
         total += targets.size(0)
         correct += pred.eq(targets).sum().item()
 
-    print("Epoch: {}, Loss: {:.3f}, Acc: {:.3f}, [{:3f} sec]".format(
+    print("Epoch: {}, Loss: {:.5f}, Acc: {:.3f}, [{:3f} sec]".format(
         epoch,
         train_loss / total,
         100. * correct / total,
@@ -70,10 +70,10 @@ def main():
         model = MobileNet_v2(n_classes=n_classes)
     elif args.model == "shufflenet":
         from models import ShuffleNet
-        model = ShuffleNet(n_classes=n_classes,
-                           out_channels=[120, 240, 480],
-                           n_blocks=[2, 4, 2],
-                           groups=3)
+        model = ShuffleNet(n_classes=n_classes)
+    elif args.model == "shufflenet_v2":
+        from models import ShuffleNet_v2
+        model = ShuffleNet_v2(n_classes=n_classes)
     else:
         raise NotImplementedError
 
