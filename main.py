@@ -36,8 +36,27 @@ def train(epoch, model, optimizer, criterion, train_loader, device):
         time.time() - start,
     ))
 
-def test():
-    pass
+def test(model, criterion, test_loader, device):
+    model.eval()
+    test_loss = 0
+    correct = 0
+    total = 0
+    start = time.time()
+    with torch.no_grad():
+        for batch_idx, (inputs, targets) in enumerate(test_loader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
+            test_loss += loss.item()
+            _, pred = outputs.max(1)
+            total += targets.size(0)
+            correct += pred.eq(targets).sum().item()
+
+    print("Loss: {:.5f}, Acc: {:.3f}, [{:.3f} sec]".format(
+        test_loss / total,
+        100. * correct / total,
+        time.time() - start))
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -49,6 +68,8 @@ def main():
     parser.add_argument("--n_epochs", type=int, default=100)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--n_gpus", type=int, default=1)
+    parser.add_argument("--checkpoint", type=str, default="/tmp/chkpt.pth.tar")
+    parser.add_argument("--pretrained", type=str, default=None)
     args = parser.parse_args()
     print(args)
 
@@ -77,10 +98,15 @@ def main():
     elif args.model == "shufflenet_v2":
         from models import ShuffleNet_v2
         model = ShuffleNet_v2(n_classes=n_classes)
+    elif args.model == "squeezenet":
+        from models import SqueezeNet
+        model = SqueezeNet(n_classes=n_classes)
     else:
         raise NotImplementedError
 
     model = model.to(device)
+    if args.pretrained:
+        model.load_state_dict(torch.load(args.checkpoint))
 
     if args.n_gpus > 1:
         gpus = []
@@ -94,6 +120,10 @@ def main():
     if args.mode == "train":
         for epoch in range(args.n_epochs):
             train(epoch, model, optimizer, criterion, train_loader, device)
+    elif args.mode == "test":
+        test(model, criterion, test_loader, device)
+    else:
+        raise NotImplementedError
 
 if __name__ == "__main__":
     torch.backends.cudnn.benchmark = True
