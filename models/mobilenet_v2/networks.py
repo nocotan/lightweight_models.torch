@@ -9,7 +9,7 @@ from models.mobilenet_v2.modules import InvResBlock
 
 
 class MobileNet_v2(nn.Module):
-    def __init__(self, n_classes=1000, input_size=224, width_mult=1.):
+    def __init__(self, n_classes=1000, width_mult=1.):
         super(MobileNet_v2, self).__init__()
         in_channels = int(32 * width_mult)
 
@@ -23,8 +23,6 @@ class MobileNet_v2(nn.Module):
             [6, 160, 3, 2],
             [6, 320, 1, 1],
         ]
-
-        assert input_size % 32 == 0
 
         self.last_channel = int(1280 * width_mult) if width_mult > 1. else 1280
         self.features = [ConvBlock(3, in_channels, 2)]
@@ -43,6 +41,7 @@ class MobileNet_v2(nn.Module):
         x = self.features(x)
         x = x.mean(3).mean(2)
         x = self.classifier(x)
+
         return x
 
     def _make_layers(self, in_channels, width_mult):
