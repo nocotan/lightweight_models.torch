@@ -65,7 +65,10 @@ def main():
                                                        batch_size=args.batch_size)
 
     print("build model: {}".format(args.model))
-    if args.model == "mobilenet_v2":
+    if args.model == "mobilenet":
+        from models import MobileNet
+        model = MobileNet(n_classes=n_classes)
+    elif args.model == "mobilenet_v2":
         from models import MobileNet_v2
         model = MobileNet_v2(n_classes=n_classes)
     elif args.model == "shufflenet":
