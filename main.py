@@ -69,6 +69,7 @@ def main():
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--n_gpus", type=int, default=1)
     parser.add_argument("--checkpoint", type=str, default="/tmp/chkpt.pth.tar")
+    parser.add_argument("--save_every", type=int, default=10)
     parser.add_argument("--pretrained", type=str, default=None)
     args = parser.parse_args()
     print(args)
@@ -120,6 +121,9 @@ def main():
     if args.mode == "train":
         for epoch in range(args.n_epochs):
             train(epoch, model, optimizer, criterion, train_loader, device)
+            if (epoch + 1) % args.save_every == 0:
+                print("saving model...")
+                torch.save(the_model.state_dict(), args.checkpoint)
     elif args.mode == "test":
         test(model, criterion, test_loader, device)
     else:
